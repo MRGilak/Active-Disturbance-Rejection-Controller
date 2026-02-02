@@ -85,12 +85,14 @@ $$\det(sI - (\mathbf{A} - \mathbf{L}\mathbf{C})) = (s + \omega_o)^{n+1}$$
 For different system orders:
 
 **First-order system (n=1):**
+
 $$\begin{aligned}
 l_1 &= 2\omega_o \\
 l_2 &= \omega_o^2
 \end{aligned}$$
 
 **Second-order system (n=2):**
+
 $$\begin{aligned}
 l_1 &= 3\omega_o \\
 l_2 &= 3\omega_o^2 \\
@@ -98,6 +100,7 @@ l_3 &= \omega_o^3
 \end{aligned}$$
 
 **Third-order system (n=3):**
+
 $$\begin{aligned}
 l_1 &= 4\omega_o \\
 l_2 &= 6\omega_o^2 \\
@@ -106,6 +109,7 @@ l_4 &= \omega_o^4
 \end{aligned}$$
 
 **Fourth-order system (n=4):**
+
 $$\begin{aligned}
 l_1 &= 5\omega_o \\
 l_2 &= 10\omega_o^2 \\
@@ -138,12 +142,14 @@ $$z_{eso} = e^{-\omega_o \Delta T}$$
 The discrete gains $L_d$ are selected such that the characteristic polynomial matches $(z - z_{eso})^{n+1}$.
 
 **For n=1:**
+
 $$\begin{aligned}
 L_{d,1} &= 1 - z_{eso}^2 \\
 L_{d,2} &= \frac{(1 - z_{eso})^2}{\Delta T}
 \end{aligned}$$
 
 **For n=2:**
+
 $$\begin{aligned}
 L_{d,1} &= 1 - z_{eso}^3 \\
 L_{d,2} &= \frac{3(1 + z_{eso})(1 - z_{eso})^2}{2\Delta T} \\
@@ -151,6 +157,7 @@ L_{d,3} &= \frac{(1 - z_{eso})^3}{\Delta T^2}
 \end{aligned}$$
 
 **For n=3:**
+
 $$\begin{aligned}
 L_{d,1} &= 1 - z_{eso}^4 \\
 L_{d,2} &= \frac{(1 - z_{eso})^2(11 + z_{eso}(14 + 11z_{eso}))}{6\Delta T} \\
@@ -159,6 +166,7 @@ L_{d,4} &= \frac{(1 - z_{eso})^4}{\Delta T^3}
 \end{aligned}$$
 
 **For n=4:**
+
 $$\begin{aligned}
 L_{d,1} &= 1 - z_{eso}^5 \\
 L_{d,2} &= \frac{5(1 - z_{eso})^2(1 + z_{eso})(5 + z_{eso}(2 + 5z_{eso}))}{12\Delta T} \\
@@ -225,6 +233,7 @@ y_f[k] &= a \cdot y_f[k-1] + (1-a) \cdot r[k] \\
 Parameter: $a \in (0,1)$ (filter coefficient)
 
 #### 2. Time-Optimal Differentiator (TOD)
+
 $$\begin{aligned}
 \dot{v}_1 &= v_2 \\
 \dot{v}_2 &= -r \cdot \text{sign}\left( v_1 - r + \frac{v_2 |v_2|}{2r} \right)
@@ -233,6 +242,7 @@ $$\begin{aligned}
 Parameter: $r > 0$ (convergence rate)
 
 #### 3. Linear Differentiator (LD)
+
 $$\begin{aligned}
 \dot{v}_1 &= v_2 - \frac{v_1 - r}{\lambda} \\
 \dot{v}_2 &= -\frac{2(v_1 - r)}{\lambda}
@@ -241,6 +251,7 @@ $$\begin{aligned}
 Parameter: $\lambda > 0$ (bandwidth)
 
 #### 4. Robust Exact Differentiator (RED)
+
 $$\begin{aligned}
 \dot{v}_1 &= v_2 - \lambda_1 |e|^{0.5} \text{sign}(e) \\
 \dot{v}_2 &= -\lambda_2 \text{sign}(e)
@@ -251,6 +262,7 @@ where $e = v_1 - r$
 Parameters: $\lambda_1, \lambda_2 > 0$
 
 #### 5. Improved Nonlinear TD (INTD)
+
 $$\begin{aligned}
 \dot{v}_1 &= v_2 \\
 \dot{v}_2 &= -r^2 \tanh\left( \frac{\beta v_1 - (1-\alpha) r}{\gamma} \right) - r v_2
@@ -288,7 +300,7 @@ The saturated control signal $u$ is fed back to the ESO to maintain consistency 
 
 ### TD Class
 
-**File:** `TD.m`
+**File:** [TD.m](TD.m)
 
 Object-oriented implementation of Tracking Differentiator with multiple methods.
 
@@ -363,7 +375,7 @@ Update sample time.
 
 ### ADRC Class
 
-**File:** `ADRC.m`
+**File:** [ADRC.m](ADRC.m)
 
 Comprehensive ADRC controller with ESO, optional TD, delay compensation, and saturation.
 
@@ -556,3 +568,4 @@ Comprehensive demonstration script with three examples:
 5. Madoński, R., & Herman, P. (2015). Survey on methods of increasing the efficiency of extended state disturbance observers. ISA transactions, 56, 18-27.
 
 6. Madoński, R., & Herman, P. (2015). Survey on methods of increasing the efficiency of extended state disturbance observers. ISA transactions, 56, 18-27.
+
