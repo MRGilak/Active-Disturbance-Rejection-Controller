@@ -1,10 +1,9 @@
 %% ADRC Usage Examples
-% This script demonstrates how to use the ADRC class with various features
 
 clear; close all; clc;
 
 %% Example 1: Basic ADRC without TD
-fprintf('=== Example 1: Basic ADRC without TD ===\n');
+fprintf('Example 1: Basic ADRC without TD\n');
 
 % System: G(s) = 1.6 / (s^2 + 7.3s + 2.1)
 num = [0 0 1.6];
@@ -74,7 +73,7 @@ ylabel('Control Input');
 title('Control Signal');
 
 %% Example 2: ADRC with Tracking Differentiator
-fprintf('\n=== Example 2: ADRC with TD for sinusoidal reference ===\n');
+fprintf('\nExample 2: ADRC with TD for sinusoidal reference\n');
 
 % Reset controller with TD
 controller2 = ADRC(n);
@@ -128,7 +127,7 @@ ylabel('Control Input');
 title('Control Signal');
 
 %% Example 3: ADRC with Input Delay
-fprintf('\n=== Example 3: ADRC with input delay compensation ===\n');
+fprintf('\nExample 3: ADRC with input delay compensation\n');
 
 % Reset controller with input delay
 inputDelay = 0.2; % 200ms delay
