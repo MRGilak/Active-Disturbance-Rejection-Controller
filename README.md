@@ -2,6 +2,12 @@
 
 MATLAB, Simulink and Python implementation of Active Disturbance Rejection Control with Extended State Observer, Tracking Differentiator, input delay compensation, and control saturation.
 
+__Note__: To be able to use all the Python codes, especially the demo script, you need to have the following packages installed:
+- numpy
+- scipy
+- matplotlib
+- python-control
+
 ---
 
 ## Theoretical Background
@@ -286,7 +292,7 @@ The saturated control signal $u$ is fed back to the ESO to maintain consistency 
 
 ## Code Documentation
 
-Below, the MATLAB implementation has been explained. The Python implementation is very similar and hence its explanation has been skipped here.
+Below, the MATLAB implementation has been explained. The Python implementation is very similar and hence its explanation has been skipped here. 
 
 ### TD Class
 
