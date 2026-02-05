@@ -284,7 +284,8 @@ class ADRC:
         self.Cd = C
     
     def _compute_controller_gains(self):
-        Scl = -4.0 / self.Tsettle  # Base scaling for controller
+        # Closed-loop poles
+        Scl = -(2.0 * (self.n + 1)) / self.Tsettle
         
         self.K = np.zeros(self.n)
         for i in range(1, self.n + 1):

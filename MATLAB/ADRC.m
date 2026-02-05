@@ -341,7 +341,8 @@ classdef ADRC < handle
         function computeControllerGains(obj)
             % Compute state feedback gains for pole placement
             
-            Scl = -4 / obj.Tsettle;  % Base scaling for controller
+            % Closed-loop poles
+            Scl = -(2 * (obj.n + 1)) / obj.Tsettle;
             
             obj.K = zeros(obj.n, 1);
             for i = 1:obj.n

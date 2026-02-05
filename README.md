@@ -46,6 +46,10 @@ $$\begin{aligned}
 y &= x_1
 \end{aligned}$$
 
+Basically, Active Disturbance Rejection Controller (ADRC) sees the whole system as a multi-integrator plus disturbance. The states are estimated using an observer. Because the total disturbance is estimated as well, the observer is referred to as Extended State Observer (ESO). The diagram below shows the block diagram of ADRC.
+
+![alt text](<images/ADRC Diagram.jpg>)
+
 ### Extended State Observer (ESO)
 
 To estimate both the states and the total disturbance $f$, we augment the state vector with $x_{n+1} = f$ (assuming $\dot{f} \approx 0$):
@@ -133,7 +137,7 @@ l_5 &= \omega_o^5
 The observer bandwidth is typically chosen as:
 $$\omega_o = k_{ob} \cdot \omega_c$$
 
-where $\omega_c = -s_{cl}$ and $s_{cl} = \frac{-4}{T_{settle}}$ is the desired closed-loop pole location, and $k_{ob}$ is a multiplier (typically 5-20).
+where $\omega_c = -s_{cl}$ and $s_{cl} = \frac{-4}{T_{settle}}$ (for the first-order system) is the desired closed-loop pole location, and $k_{ob}$ is a multiplier (typically 5-20). $s_{cs}$ is usually selected as to make the closed-loop system critically damped.
 
 ### Discrete-Time ESO
 
@@ -305,6 +309,15 @@ u_0 & \text{otherwise}
 \end{cases}$$
 
 The saturated control signal $u$ is fed back to the ESO to maintain consistency between the ESO's prediction and the actual plant input.
+
+---
+Here are some figures showing the controller in action, in presence of time-varying referece signal, input delay, input saturation, etc.
+
+![alt text](images/ADRC_demo1.jpg)
+
+![alt text](images/ADRC_demo2.jpg)
+
+![alt text](images/ADRC_demo3.jpg)
 
 ---
 

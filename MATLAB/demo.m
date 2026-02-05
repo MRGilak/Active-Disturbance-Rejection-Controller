@@ -192,4 +192,5 @@ xlabel('Time (s)');
 ylabel('Control Input');
 legend('Controller $u(t)$', 'Applied $u(t-\tau)$', 'interpreter', 'latex', 'Location', 'best');
 title('Control Signal');
+ylim([-0.5, 10.5]);
 
