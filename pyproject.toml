@@ -1,0 +1,66 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "adrc"
+version = "1.0.0"
+description = "Active Disturbance Rejection Control (ADRC) with Tracking Differentiator"
+readme = "README.md"
+requires-python = ">=3.7"
+license = "MIT"
+authors = [
+    {name = "MRGilak", email = "mohammadreza.gilak@ee.sharif.edu"}
+]
+maintainers = [
+    {name = "MRGilak", email = "mohammadreza.gilak@ee.sharif.edu"}
+]
+keywords = [
+    "control-systems",
+    "adrc",
+    "active-disturbance-rejection",
+    "extended-state-observer",
+    "tracking-differentiator",
+    "control-theory",
+    "robust-control"
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+    "numpy>=1.20.0",
+    "scipy>=1.7.0",
+    "matplotlib>=3.3.0",
+    "control>=0.9.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/MRGilak/Active-Disturbance-Rejection-Controller"
+Repository = "https://github.com/MRGilak/Active-Disturbance-Rejection-Controller"
+"Bug Tracker" = "https://github.com/MRGilak/Active-Disturbance-Rejection-Controller/issues"
+Documentation = "https://github.com/MRGilak/Active-Disturbance-Rejection-Controller#readme"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=3.0",
+    "black>=22.0",
+    "flake8>=4.0",
+]
+
+[tool.setuptools]
+packages = ["adrc"]
+
+[tool.setuptools.package-data]
+adrc = ["*.md"]
