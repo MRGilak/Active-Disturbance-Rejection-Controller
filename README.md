@@ -6,7 +6,7 @@ __Note__: You can install the Python implementation using
 ``` bash
 pip install adrc
 ```
-You can look at [the project page on Pypi](https://pypi.org/project/adrc/1.0.0/) for more information.
+You can look at [the project page on Pypi](https://pypi.org/project/adrc/) for more information.
 
 __Note__: To be able to use all the Python codes, especially the demo script, you need to have the following packages installed:
 - numpy
