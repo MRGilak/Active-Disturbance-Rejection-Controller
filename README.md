@@ -33,11 +33,10 @@ __Note__: To be able to use all the Python codes, especially the demo script, yo
 # Simulink
 Discrete controller implementations are available for first and second-order systems in simulink. There is also a continuous-time implementation for second-order systems. Continuous-time first-order systems will be added as well.
 Please pay attention to the following:
-- The model settings in all cases is set to _variable step_ solver. I do encourage using this option, unless there s a specfic system you are working wth and you know what you are doing.
-- In discrete-time simulations, it is necessary that you change the sample time not only where you pass it to the system, but also in the two or three (depending on the system order) delay blocks that are present in the observer block. I am looking into a way to circumvent this, but for now, you have to change them manually.
+- The model settings in all cases is set to _variable step_ solver. I do encourage using this option, unless there is a specfic system you are working with and you know what you are doing.
+- In discrete-time simulations, it is necessary that you change the sample time not only where you pass it to the controller, but also in the two or three (depending on the system order) delay blocks that are present in the observer block. I am looking into a way to circumvent this, but for now, you have to change them manually.
 - I have added support for first-order and second-order _cascaded ADRC_ as well. You can compare their performance against the standard ADRC in the two simulink files.
 - The Simulink files are generated using MATLAB 2025b. If you have an older version and need the files, you can contact me to export them for you. I will add automatic support for older versions as well in the future. You can caontact me via email at _mrgilak02@gmail.com_, but I might not be able to respond quickly due to frequent internet shutdowns in Iran :)
-
 
 # MATLAB
 1. **Sample Time**: Controller sample time `dT` can differ from simulation time step `dt`. The controller should be called at rate `dT`.
@@ -46,6 +45,11 @@ Please pay attention to the following:
 4. **TD Integration**: When TD is enabled, it is automatically updated within `step()`. Manual reference derivatives can still be provided via `varargin` to override TD estimates.
 5. **State Estimation**: Access estimated states via `getEstimatedStates()` for monitoring or additional processing.
 
+---
+TODO
+- Fix the need to change controller sample time in multiple places in Simulink
+- Add cascaded ADRC support for the Python and MATLAB versions
+- Add support for multiple generations of older Simulink versions (distant future!)
 ---
 This repo is maintained by [me](https://github.com/MRGilak). Contributions are welcome as well. 
 ---
