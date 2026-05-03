@@ -232,7 +232,7 @@ classdef ADRC_app < matlab.apps.AppBase
             
             % Initialize controller with ADRC class
             try
-                controller = ADRC(n);
+                controller = adrc.ADRC(n);
                 
                 % Configure TD if using reference derivatives
                 if useRefDerivs

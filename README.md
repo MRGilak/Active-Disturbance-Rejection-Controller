@@ -1,12 +1,18 @@
 # Active Disturbance Rejection Control (ADRC)
 
-MATLAB, Simulink and Python implementation of Active Disturbance Rejection Control with Extended State Observer, Tracking Differentiator, input delay compensation, and control saturation.
+This repository contains Python, C++, MATLAB, and Simulink implementation of Active Disturbance Rejection Control with Extended State Observer (ESO), Tracking Differentiator (TD), input delay compensation, control saturation, and support for optional use of the cascaded structure.
 
-I've summarized a comprehensive note on the theoretical background of _actve disturbance rejection controller_ and _tracking differentiators_. You can find it in [here](/assets/docs/theory.md).
-__Note__: Important notes for the Python, Matlab, and Simulink implementations are given after the introduction!
-__Note__: I am adding support for _cascaded ADRC_ as well. It is only available for the Simulink version for now, but it will be added to the Python and MATLAB implementation as well.
+I've summarized a comprehensive note on the theoretical background of _actve disturbance rejection controller_ and _tracking differentiators_. You can find it in [here](/docs/theory.md) (I'll add the cascaded ADRC documentation as soon as possible).
+
+__Note__: The Python implementation (which can be installed with `pip install adrc`) is currently not the latest version. This is because access to the global internet has been cut off in Iran for the past two months! I'll update that as soon as possible. For now, you can use. For now, I highly recommend using the implementation available on Github.
+
+__Note__: Important notes for the Python, C++, Matlab, and Simulink implementations are given after the introduction!
+
+__New__: _Cascaded ADRC_ is now supported for all the environments as well.
  
 ---
+# Demo
+
 Here are some figures showing the controller in action, in presence of time-varying referece signal, input delay, input saturation, etc.
 
 ![alt text](assets/images/ADRC_demo1.jpg)
@@ -14,6 +20,8 @@ Here are some figures showing the controller in action, in presence of time-vary
 ![alt text](assets/images/ADRC_demo2.jpg)
 
 ![alt text](assets/images/ADRC_demo3.jpg)
+
+![alt text](assets/images/ADRC_app.png)
 
 ---
 Please pay attention to the following:
@@ -23,7 +31,8 @@ __Note__: Good news! You can install the Python implementation using
 ``` bash
 pip install adrc
 ```
-You can look at [the project page on Pypi](https://pypi.org/project/adrc/) for more information.
+You can look at [the project page on Pypi](https://pypi.org/project/adrc/) for more information. (**_Note_**: I recommend using the version on Github for now until I update the Pypi version)
+
 __Note__: To be able to use all the Python codes, especially the demo script, you need to have the following packages installed:
 - numpy
 - scipy          (only needed for the demo)
@@ -40,11 +49,25 @@ Please pay attention to the following:
 
 
 # MATLAB
+You can take a look at [this file](/docs/matlab_docs.md) to see how the code works. 
+
+**_Note_**: I have tried to use the same names in MATLAB, Pytho, and C++; however, I still feel it's necessary to add proper documentation for each. This is in the [TODOs](#todos).
+
 1. **Sample Time**: Controller sample time `dT` can differ from simulation time step `dt`. The controller should be called at rate `dT`.
 2. **Delay Compensation**: Input delay is specified in seconds and internally converted to discrete steps. Delay buffer maintains control history.
 3. **Initialization**: Always call `initialize()` before `step()`. The controller will throw an error if used uninitialized.
 4. **TD Integration**: When TD is enabled, it is automatically updated within `step()`. Manual reference derivatives can still be provided via `varargin` to override TD estimates.
 5. **State Estimation**: Access estimated states via `getEstimatedStates()` for monitoring or additional processing.
+
+---
+# TODOs
+
+ - [ ] add proper documentation for the Python and C++ versions as well
+ - [ ] add theoretical background for cascaded ADRC
+ - [ ] update Pypi
+ - [ ] add a script to compare MATLAB and Simulink's output for any possible differences
+ - [ ] add ROS2 support
+
 
 ---
 This repo is maintained by [me](https://github.com/MRGilak). Contributions are welcome as well. 

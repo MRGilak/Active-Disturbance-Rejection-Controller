@@ -12,9 +12,13 @@ class ADRC:
         self.controller_order = self.n + 1
         
         # State variables
-        self.Xhat = np.zeros(self.controller_order)
+        self.xhat = np.zeros(self.controller_order)
         self.u_prev = 0.0
         self.Ke = 1.0
+
+        # Cascaded ADRC
+        self.use_cascaded = False
+        self.mhat = np.zeros(self.controller_order)
         
         # Gains and matrices (initialized in initialize())
         self.Ld = None
@@ -46,7 +50,7 @@ class ADRC:
     
     def initialize(self, Tsettle=1.0, kob=10, b0=1.0, u_min=-np.inf, u_max=np.inf,
                    dt=0.01, Xhat_init=None, u_init=0.0, Ke=1.0, input_delay=0.0,
-                   TD_method='none', TD_params=None):
+                   TD_method='none', TD_params=None, use_cascaded=False):
         if Tsettle <= 0:
             raise ValueError("Tsettle must be positive")
         if kob <= 0:
@@ -66,6 +70,7 @@ class ADRC:
         self.dt = dt
         self.u_min = u_min
         self.u_max = u_max
+        self.use_cascaded = use_cascaded
         
         # Initialize state
         if Xhat_init is None:
@@ -75,7 +80,8 @@ class ADRC:
             if len(Xhat_init) != self.controller_order:
                 raise ValueError(f'Xhat_init must have length {self.controller_order}')
         
-        self.Xhat = Xhat_init.copy()
+        self.xhat = Xhat_init.copy()
+        self.mhat = np.zeros(self.controller_order)
         self.u_prev = u_init
         
         # Configure input delay
@@ -126,7 +132,16 @@ class ADRC:
         
         # Update ESO (using delayed control input)
         u_for_eso = self.u_history[0]
-        self.Xhat = self.Ad @ self.Xhat + self.Bd * u_for_eso + self.Ld * output
+
+        self.xhat = self.Ad @ self.xhat + self.Bd * u_for_eso + self.Ld * output
+
+        # Update LESO2 (mhat) if cascaded
+        if self.use_cascaded:
+            B = np.zeros(self.controller_order)
+            B[self.n - 1] = self.dt  # self.n-1 is the last state before f
+            self.mhat = self.Ad @ self.mhat + self.Bd * u_for_eso + self.Ld * output + B * self.xhat[-1]
+        else:
+            self.mhat = self.xhat.copy()
         
         # Build reference state vector
         r_states = np.zeros(self.n)
@@ -147,7 +162,15 @@ class ADRC:
         
         # Control law with disturbance rejection
         K_extended = np.concatenate([self.K, [1.0]])
-        u = np.dot(K_extended, RefVec - self.Xhat) / self.b0
+
+        # Control law with disturbance rejection
+        if self.use_cascaded:
+            m_states = self.mhat[:self.n]
+            u = (np.dot(self.K, r_states - m_states) + 
+                ref_nth - self.mhat[-1] - self.xhat[-1]) / self.b0
+        else:
+            K_extended = np.concatenate([self.K, [1.0]])
+            u = np.dot(K_extended, RefVec - self.xhat) / self.b0
         
         # Apply saturation
         u = self._saturate(u)
@@ -171,7 +194,8 @@ class ADRC:
         if u_init is None:
             u_init = 0.0
         
-        self.Xhat = Xhat_init.copy()
+        self.xhat = Xhat_init.copy()
+        self.mhat = np.zeros(self.controller_order)
         self.u_prev = u_init
         self.u_history = np.full(self.input_delay_steps + 1, u_init)
         
@@ -211,10 +235,19 @@ class ADRC:
         self._compute_controller_gains()
     
     def get_estimated_states(self):
-        return self.Xhat.copy()
+        return self.xhat.copy()
     
     def get_estimated_disturbance(self):
-        return self.Xhat[-1]
+        if self.use_cascaded:
+            return self.mhat[-1] + self.xhat[-1]
+        else:
+            return self.xhat[-1]
+    
+    def get_m_states(self):
+        return self.mhat.copy()
+
+    def get_z_states(self):
+        return self.xhat.copy()  # Xhat is the z-observer
     
     def _compute_eso_gains(self):
         # Continuous-time ESO matrices
@@ -230,7 +263,6 @@ class ADRC:
         
         # Discretize using matrix exponential
         Ad_full = expm(A * self.dt)
-        I = np.eye(NADRC)
         
         # Compute Bd using integration
         sum_matrix = np.zeros((NADRC, NADRC))
@@ -280,7 +312,7 @@ class ADRC:
         # Store ESO matrices
         self.Ld = Ld
         self.Ad = Ad_full - np.outer(Ld, C @ Ad_full)
-        self.Bd = Bd_full - Ld * (C @ Bd_full)
+        self.Bd = B * self.dt
         self.Cd = C
     
     def _compute_controller_gains(self):

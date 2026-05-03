@@ -23,7 +23,7 @@ Bd = (A \ (Ad - eye(size(A)))) * B;
 Cd = C;
 
 % Create and initialize ADRC controller
-controller = ADRC(n);
+controller = adrc.ADRC(n);
 controller.initialize('Tsettle', 1.0, 'kob', 10, 'b0', 1.6, ...
                      'dT', 0.01, 'uMin', -10, 'uMax', 10);
 
@@ -37,12 +37,14 @@ y = zeros(N, 1);
 u = zeros(N, 1);
 xhat = zeros(N, n+1);
 
+ctrl_div = 10;
+
 for k = 1:N
     % Controller update (at slower rate)
-    if mod(k-1, 10) == 0
+    if mod(k-1, ctrl_div) == 0
         u(k) = controller.step(ref(k), y(max(1, k-1)));
     else
-        u(k) = u(k-1);
+        u(k) = u(k-1);  % zero-order hold
     end
     
     % Plant simulation
@@ -76,7 +78,7 @@ title('Control Signal');
 fprintf('\nExample 2: ADRC with TD for sinusoidal reference\n');
 
 % Reset controller with TD
-controller2 = ADRC(n);
+controller2 = adrc.ADRC(n);
 controller2.initialize('Tsettle', 1.0, 'kob', 10, 'b0', 1.6, ...
                       'dT', 0.01, 'uMin', -30, 'uMax', 30, ...
                       'TD_method', 'euler', 'TD_params', {0.6});
@@ -91,12 +93,14 @@ y2 = zeros(N, 1);
 u2 = zeros(N, 1);
 xhat2 = zeros(N, n+1);
 
+ctrl_div = 10;
+
 for k = 1:N
     % Controller update
-    if mod(k-1, 10) == 0
+    if mod(k-1, ctrl_div) == 0
         u2(k) = controller2.step(ref_sin(k), y2(max(1, k-1)));
     else
-        u2(k) = u2(k-1);
+        u2(k) = u2(k-1);  % zero-order hold
     end
     
     % Plant simulation
@@ -131,7 +135,7 @@ fprintf('\nExample 3: ADRC with input delay compensation\n');
 
 % Reset controller with input delay
 inputDelay = 0.2; % 200ms delay
-controller3 = ADRC(n);
+controller3 = adrc.ADRC(n);
 controller3.initialize('Tsettle', 1.0, 'kob', 10, 'b0', 1.6, ...
                       'dT', 0.01, 'uMin', -10, 'uMax', 10, ...
                       'inputDelay', inputDelay);
@@ -151,12 +155,14 @@ u3 = zeros(N, 1);
 u_delayed = zeros(N, 1);
 xhat3 = zeros(N, n+1);
 
+ctrl_div = 10;
+
 for k = 1:N
     % Controller update
-    if mod(k-1, 10) == 0
+    if mod(k-1, ctrl_div) == 0
         u3(k) = controller3.step(ref_step(k), y3(max(1, k-1)));
     else
-        u3(k) = u3(k-1);
+        u3(k) = u3(k-1);  % zero-order hold
     end
     
     % Apply delay to plant input

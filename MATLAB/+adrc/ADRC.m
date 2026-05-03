@@ -18,7 +18,7 @@ classdef ADRC < handle
         Ke              double                                  % Error gain
         
         % State variables
-        Xhat            double                                  % Extended state estimates [x1...xn, f]
+        xhat            double                                  % Extended state estimates [x1...xn, f]
         uPrev           double                                  % Previous control input
         
         % Saturation
@@ -31,7 +31,11 @@ classdef ADRC < handle
         
         % Tracking differentiator (optional)
         useTD           logical = false                         % Enable TD
-        TD_obj          TD                                      % TD object instance
+        TD_obj          adrc.TD                                 % TD object instance
+
+        % Cascaded ADRC
+        useCascaded     logical = false                         % Enable cascaded structure
+        mhat            double                                  % LESO2 estimates
     end
     
     properties (SetAccess = private)
@@ -52,12 +56,15 @@ classdef ADRC < handle
             
             obj.n = systemOrder;
             obj.controllerOrder = systemOrder + 1;
-            obj.Xhat = zeros(obj.controllerOrder, 1);
+            obj.xhat = zeros(obj.controllerOrder, 1);
             obj.uPrev = 0;
             obj.Ke = 1;
+
+            % Estimates for cascaded adrc
+            obj.mhat = zeros(obj.controllerOrder, 1);
             
             % Initialize TD_obj with a dummy object 
-            obj.TD_obj = TD('euler', 0.01, 0.9);
+            obj.TD_obj = adrc.TD('euler', 0.01, 0.9);
         end
         
         function initialize(obj, varargin)
@@ -75,6 +82,7 @@ classdef ADRC < handle
             addParameter(p, 'inputDelay', 0, @(x) isnumeric(x) && isscalar(x) && x >= 0);
             addParameter(p, 'TD_method', 'none', @(x) ischar(x) || isstring(x));
             addParameter(p, 'TD_params', {}, @iscell);
+            addParameter(p, 'useCascaded', false, @(x) islogical(x) && isscalar(x));
             
             parse(p, varargin{:});
             
@@ -86,13 +94,16 @@ classdef ADRC < handle
             obj.dT = p.Results.dT;
             obj.uMin = p.Results.uMin;
             obj.uMax = p.Results.uMax;
+            obj.useCascaded = p.Results.useCascaded;
             
             % Initialize state
             XhatInit = p.Results.XhatInit(:);
             if length(XhatInit) ~= obj.controllerOrder
                 error('ADRC:Initialize', 'XhatInit must have length %d', obj.controllerOrder);
             end
-            obj.Xhat = XhatInit;
+            obj.xhat = XhatInit;
+            obj.mhat = zeros(obj.controllerOrder, 1);  % m always starts at zero
+
             obj.uPrev = p.Results.uInit;
             
             % Configure input delay
@@ -107,12 +118,12 @@ classdef ADRC < handle
             TD_method = lower(p.Results.TD_method);
             if ~strcmp(TD_method, 'none')
                 obj.useTD = true;
-                obj.TD_obj = TD(TD_method, obj.dT, p.Results.TD_params{:});
+                obj.TD_obj = adrc.TD(TD_method, obj.dT, p.Results.TD_params{:});
                 obj.TD_obj.reset(0);
             else
                 obj.useTD = false;
                 % Create a default TD object
-                obj.TD_obj = TD('euler', obj.dT, 0.9);
+                obj.TD_obj = adrc.TD('euler', obj.dT, 0.9);
             end
             
             obj.isInitialized = true;
@@ -139,7 +150,7 @@ classdef ADRC < handle
             
             % Parse optional reference derivatives from varargin
             if ~isempty(varargin)
-                if numel(varargin) == 1 && isvector(varargin{1})
+                if isscalar(varargin) && isvector(varargin{1})
                     refDerivs = varargin{1}(:);
                 else
                     try
@@ -153,8 +164,18 @@ classdef ADRC < handle
             
             % Update ESO (using delayed control input)
             u_for_eso = obj.uHistory(1);
-            obj.Xhat = obj.Ad * obj.Xhat + obj.Bd * u_for_eso + obj.Ld * output;
+            obj.xhat = obj.Ad * obj.xhat + obj.Bd * u_for_eso + obj.Ld * output; 
             
+            % Update LESO2
+            if obj.useCascaded
+                B = zeros(obj.controllerOrder, 1);
+                B(obj.n) = obj.dT;
+
+                obj.mhat = obj.Ad * obj.mhat + obj.Bd * u_for_eso + obj.Ld * output + B * obj.xhat(obj.n+1);
+            else
+                obj.mhat = obj.xhat;  % just a filler!
+            end      
+
             % Build reference state vector
             r_states = zeros(obj.n, 1);
             r_states(1) = ref_filtered;
@@ -176,8 +197,14 @@ classdef ADRC < handle
             RefVec = [r_states; ref_nth];
             
             % Control law with disturbance rejection
-            u = dot([obj.K; 1], RefVec - obj.Xhat) / obj.b0;
-            
+            if obj.useCascaded
+                m_states = obj.mhat(1:obj.n);
+                u = (dot(obj.K, r_states - m_states) + ...
+                        ref_nth - obj.mhat(obj.n+1) - obj.xhat(obj.n+1)) / obj.b0;
+            else
+                u = dot([obj.K; 1], RefVec - obj.xhat) / obj.b0;
+            end
+
             % Apply saturation
             u = obj.saturate(u);
             
@@ -200,9 +227,11 @@ classdef ADRC < handle
                 uInit = 0;
             end
             
-            obj.Xhat = XhatInit(:);
+            obj.xhat = XhatInit(:);
             obj.uPrev = uInit;
             obj.uHistory = repmat(uInit, obj.inputDelaySteps + 1, 1);
+
+            obj.mhat = zeros(obj.controllerOrder, 1);
             
             if obj.useTD
                 obj.TD_obj.reset(0);
@@ -217,10 +246,10 @@ classdef ADRC < handle
             else
                 obj.useTD = true;
                 if ~isa(obj.TD_obj, 'TD')
-                    obj.TD_obj = TD(method, obj.dT, varargin{:});
+                    obj.TD_obj = adrc.TD(method, obj.dT, varargin{:});
                 else
                     % Update existing TD - need to recreate with new method
-                    obj.TD_obj = TD(method, obj.dT, varargin{:});
+                    obj.TD_obj = adrc.TD(method, obj.dT, varargin{:});
                     obj.TD_obj.reset(0);
                 end
             end
@@ -255,11 +284,23 @@ classdef ADRC < handle
         end
         
         function Xhat = getEstimatedStates(obj)
-            Xhat = obj.Xhat;
+            Xhat = obj.xhat;
+        end
+
+        function mhat = getMStates(obj)
+            mhat = obj.mhat;
+        end
+
+        function zhat = getZStates(obj)
+            zhat = obj.xhat;  % xhat is the z-observer
         end
         
         function f = getEstimatedDisturbance(obj)
-            f = obj.Xhat(end);
+            if obj.useCascaded
+                f = obj.mhat(end) + obj.xhat(end);
+            else
+                f = obj.xhat(end);
+            end
         end
     end
     
@@ -281,14 +322,6 @@ classdef ADRC < handle
             
             % Discretize using matrix exponential
             Ad_full = expm(A * obj.dT);
-            I = eye(NADRC);
-            
-            % Compute Bd using integration
-            sum_matrix = zeros(NADRC);
-            for i = 1:obj.n
-                sum_matrix = sum_matrix + (A^(i-1)) * (obj.dT^i) / factorial(i);
-            end
-            Bd_full = sum_matrix * B;
             
             % Observer pole placement
             switch obj.n
@@ -296,45 +329,45 @@ classdef ADRC < handle
                     Scl = -4 / obj.Tsettle;
                     SESO = obj.kob * Scl;
                     ZESO = exp(SESO * obj.dT);
-                    Ld = zeros(2, 1);
-                    Ld(1) = 1 - (ZESO)^2;
-                    Ld(2) = (1 - ZESO)^2 / obj.dT;
+                    ld = zeros(2, 1);
+                    ld(1) = 1 - (ZESO)^2;
+                    ld(2) = (1 - ZESO)^2 / obj.dT;
                     
                 case 2
                     Scl = -6 / obj.Tsettle;
                     SESO = obj.kob * Scl;
                     ZESO = exp(SESO * obj.dT);
-                    Ld = zeros(3, 1);
-                    Ld(1) = 1 - (ZESO)^3;
-                    Ld(2) = (1 + ZESO) * ((1 - ZESO)^2) * 3 / (2 * obj.dT);
-                    Ld(3) = ((1 - ZESO)^3) / (obj.dT^2);
+                    ld = zeros(3, 1);
+                    ld(1) = 1 - (ZESO)^3;
+                    ld(2) = (1 + ZESO) * ((1 - ZESO)^2) * 3 / (2 * obj.dT);
+                    ld(3) = ((1 - ZESO)^3) / (obj.dT^2);
                     
                 case 3
                     Scl = -8 / obj.Tsettle;
                     SESO = obj.kob * Scl;
                     ZESO = exp(SESO * obj.dT);
-                    Ld = zeros(4, 1);
-                    Ld(1) = 1 - (ZESO)^4;
-                    Ld(2) = ((1 - ZESO)^2) * (11 + ZESO * (14 + 11 * ZESO)) / (6 * obj.dT);
-                    Ld(3) = ((1 - ZESO)^3) * (1 + ZESO) * 2 / (obj.dT^2);
-                    Ld(4) = ((1 - ZESO)^4) / (obj.dT^3);
+                    ld = zeros(4, 1);
+                    ld(1) = 1 - (ZESO)^4;
+                    ld(2) = ((1 - ZESO)^2) * (11 + ZESO * (14 + 11 * ZESO)) / (6 * obj.dT);
+                    ld(3) = ((1 - ZESO)^3) * (1 + ZESO) * 2 / (obj.dT^2);
+                    ld(4) = ((1 - ZESO)^4) / (obj.dT^3);
                     
                 case 4
                     Scl = -10 / obj.Tsettle;
                     SESO = obj.kob * Scl;
                     ZESO = exp(SESO * obj.dT);
-                    Ld = zeros(5, 1);
-                    Ld(1) = 1 - (ZESO)^5;
-                    Ld(2) = ((1 - ZESO)^2) * (1 + ZESO) * (5 + ZESO * (2 + 5 * ZESO)) * 5 / (12 * obj.dT);
-                    Ld(3) = ((1 - ZESO)^3) * (7 + ZESO * (10 + 7 * ZESO)) * 5 / (12 * obj.dT^2);
-                    Ld(4) = ((1 - ZESO)^4) * (1 + ZESO) * 5 / (2 * obj.dT^3);
-                    Ld(5) = ((1 - ZESO)^5) / (obj.dT^4);
+                    ld = zeros(5, 1);
+                    ld(1) = 1 - (ZESO)^5;
+                    ld(2) = ((1 - ZESO)^2) * (1 + ZESO) * (5 + ZESO * (2 + 5 * ZESO)) * 5 / (12 * obj.dT);
+                    ld(3) = ((1 - ZESO)^3) * (7 + ZESO * (10 + 7 * ZESO)) * 5 / (12 * obj.dT^2);
+                    ld(4) = ((1 - ZESO)^4) * (1 + ZESO) * 5 / (2 * obj.dT^3);
+                    ld(5) = ((1 - ZESO)^5) / (obj.dT^4);
             end
             
             % Store ESO matrices
-            obj.Ld = Ld;
-            obj.Ad = Ad_full - Ld * C * Ad_full;
-            obj.Bd = Bd_full - Ld * C * Bd_full;
+            obj.Ld = ld;
+            obj.Ad = Ad_full - obj.Ld * C * Ad_full;            
+            obj.Bd = B * obj.dT;
             obj.Cd = C;
         end
         
