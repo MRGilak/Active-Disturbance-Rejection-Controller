@@ -4,7 +4,7 @@ This repository contains Python, C++, MATLAB, and Simulink implementation of Act
 
 I've summarized a comprehensive note on the theoretical background of _actve disturbance rejection controller_ and _tracking differentiators_. You can find it in [here](/docs/theory.md) (I'll add the cascaded ADRC documentation as soon as possible).
 
-__Note__: The Python implementation (which can be installed with `pip install adrc`) is currently not the latest version. This is because access to the global internet has been cut off in Iran for the past two months! I'll update that as soon as possible. For now, you can use. For now, I highly recommend using the implementation available on Github.
+__Note__: The Python version on Pypi (which can be installed with `pip install adrc`) is currently not the latest version. This is because access to the global internet has been cut off in Iran for the past two months! I'll update that as soon as possible. For now, I highly recommend using the implementation available on Github.
 
 __Note__: Important notes for the Python, C++, Matlab, and Simulink implementations are given after the introduction!
 
@@ -50,7 +50,7 @@ Please pay attention to the following:
 # MATLAB
 You can take a look at [this file](/docs/matlab_docs.md) to see how the code works. 
 
-**_Note_**: I have tried to use the same names in MATLAB, Pytho, and C++; however, I still feel it's necessary to add proper documentation for each. This is in the [TODOs](#todos).
+**_Note_**: I have tried to use the same names in MATLAB, Python, and C++; however, I still feel it's necessary to add proper documentation for each. This is in the [TODOs](#todos).
 
 1. **Sample Time**: Controller sample time `dT` can differ from simulation time step `dt`. The controller should be called at rate `dT`.
 2. **Delay Compensation**: Input delay is specified in seconds and internally converted to discrete steps. Delay buffer maintains control history.
@@ -67,6 +67,7 @@ You can take a look at [this file](/docs/matlab_docs.md) to see how the code wor
  - [ ] add a script to compare MATLAB and Simulink's output for any possible differences
  - [ ] add ROS2 support
  - [ ] add support for multiple generations of older Simulink versions (distant future!)
+ - [ ] update the project website
 
 ---
 This repo is maintained by [me](https://github.com/MRGilak). Contributions are welcome as well. 
@@ -78,5 +79,3 @@ This repo is maintained by [me](https://github.com/MRGilak). Contributions are w
 3. Herbst, G. (2013). "A Simulative Study on Active Disturbance Rejection Control (ADRC) as a Control Tool for Practitioners". Electronics.
 4. Zheng, Q., Gao, Z. (2010). "On Practical Applications of Active Disturbance Rejection Control". Chinese Control Conference.
 5. Madoński, R., & Herman, P. (2015). Survey on methods of increasing the efficiency of extended state disturbance observers. ISA transactions, 56, 18-27.
-6. Madoński, R., & Herman, P. (2015). Survey on methods of increasing the efficiency of extended state disturbance observers. ISA transactions, 56, 18-27.
-
