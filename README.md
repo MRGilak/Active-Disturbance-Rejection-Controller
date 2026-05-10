@@ -65,7 +65,6 @@ You can take a look at [this file](/docs/matlab_docs.md) to see how the code wor
  - [ ] add theoretical background for cascaded ADRC
  - [ ] update Pypi
  - [ ] add a script to compare MATLAB and Simulink's output for any possible differences
- - [ ] add ROS2 support
  - [ ] add support for multiple generations of older Simulink versions (distant future!)
 
 ---
