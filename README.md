@@ -31,6 +31,10 @@ pip install adrc
 ```
 You can look at [the project page on Pypi](https://pypi.org/project/adrc/) for more information.
 
+[![PyPI Downloads (Daily)](https://img.shields.io/pypi/dd/adrc.svg)](https://pypi.org/project/adrc/)
+
+_Disclaimer_: This badge is provided by shields.io. Source analytics dashboard: [clickhouse-analytics.metabaseapp.com](https://clickhouse-analytics.metabaseapp.com/public/dashboard/8d516106-3a9f-4674-aafc-aa39d6380ee2?project_name=adrc#&theme=night).
+
 __Note__: To be able to use all the Python codes, especially the demo script, you need to have the following packages installed:
 - numpy
 - scipy          (only needed for the demo)
