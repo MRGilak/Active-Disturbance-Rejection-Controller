@@ -5,6 +5,10 @@
 #include <cmath>
 #include <iomanip>
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 // Matrix-vector multiplication helper
 std::vector<double> mat_vec_mul(const std::vector<double>& A, const std::vector<double>& x, int rows, int cols) {
     std::vector<double> result(rows, 0.0);

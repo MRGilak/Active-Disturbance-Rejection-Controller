@@ -162,7 +162,7 @@ double ADRC::step(double reference, double output, std::vector<double> refDeriva
             for (int j = 0; j < NADRC; j++) {
                 temp_m[i] += Ad_data[i * NADRC + j] * mhat[j];
             }
-            temp_m[i] += Bd[i] * u_for_eso + Ld[i] * output + B[i] * xhat.back();
+            temp_m[i] += Bd[i] * u_for_eso + Ld[i] * xhat[0] + B[i] * xhat.back();
         }
         mhat = temp_m;
     } else {

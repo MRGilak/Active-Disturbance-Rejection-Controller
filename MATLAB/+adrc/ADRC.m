@@ -171,7 +171,7 @@ classdef ADRC < handle
                 B = zeros(obj.controllerOrder, 1);
                 B(obj.n) = obj.dT;
 
-                obj.mhat = obj.Ad * obj.mhat + obj.Bd * u_for_eso + obj.Ld * output + B * obj.xhat(obj.n+1);
+                obj.mhat = obj.Ad * obj.mhat + obj.Bd * u_for_eso + obj.Ld * obj.xhat(1) + B * obj.xhat(obj.n+1);
             else
                 obj.mhat = obj.xhat;  % just a filler!
             end      

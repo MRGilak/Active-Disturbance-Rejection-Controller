@@ -139,7 +139,7 @@ class ADRC:
         if self.use_cascaded:
             B = np.zeros(self.controller_order)
             B[self.n - 1] = self.dt  # self.n-1 is the last state before f
-            self.mhat = self.Ad @ self.mhat + self.Bd * u_for_eso + self.Ld * output + B * self.xhat[-1]
+            self.mhat = self.Ad @ self.mhat + self.Bd * u_for_eso + self.Ld * self.xhat[0] + B * self.xhat[-1]
         else:
             self.mhat = self.xhat.copy()
         
