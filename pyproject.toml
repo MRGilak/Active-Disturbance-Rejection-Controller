@@ -60,7 +60,9 @@ dev = [
 ]
 
 [tool.setuptools]
+package-dir = {"" = "Python"}
 packages = ["adrc"]
 
-[tool.setuptools.package-data]
-adrc = ["*.md"]
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["Python"]

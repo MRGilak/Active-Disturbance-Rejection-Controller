@@ -405,18 +405,17 @@ void ADRC::computeESOGains() {
     // Store ESO matrices
     this->Ld = Ld;
     
-    // Ad = Ad_full - Ld * C * Ad_full
-    std::vector<double> CAd_full(NADRC * NADRC, 0.0);
-    for (int i = 0; i < NADRC; i++) {
-        for (int j = 0; j < NADRC; j++) {
-            CAd_full[i * NADRC + j] = C[i] * Ad_full[i * NADRC + j];
-        }
+    // CAd = C * Ad_full  (C = [1, 0, ..., 0], so it is the first row of Ad_full)
+    std::vector<double> CAd_row(NADRC, 0.0);
+    for (int j = 0; j < NADRC; j++) {
+        CAd_row[j] = Ad_full[j];
     }
     
+    // Ad = Ad_full - Ld * (C * Ad_full)
     Ad_data.resize(NADRC * NADRC);
     for (int i = 0; i < NADRC; i++) {
         for (int j = 0; j < NADRC; j++) {
-            Ad_data[i * NADRC + j] = Ad_full[i * NADRC + j] - Ld[i] * CAd_full[i * NADRC + j];
+            Ad_data[i * NADRC + j] = Ad_full[i * NADRC + j] - Ld[i] * CAd_row[j];
         }
     }
     

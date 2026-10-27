@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import control
-from ADRC import ADRC
+from adrc import ADRC
 
 def example_1_basic_adrc():
     print('Example 1: Basic ADRC without TD')

@@ -1,0 +1,42 @@
+name: C++ CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            cmake-generator: "Unix Makefiles"
+          - os: windows-latest
+            cmake-generator: "Visual Studio 17 2022"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure CMake
+        working-directory: cpp/adrc
+        run: |
+          cmake -S . -B build -G "${{ matrix.cmake-generator }}"
+
+      - name: Build
+        working-directory: cpp/adrc
+        run: |
+          cmake --build build --config Release --parallel 2
+
+      - name: Run unit tests
+        working-directory: cpp/adrc
+        run: |
+          ctest --test-dir build -C Release --output-on-failure
+
+      - name: Run demo smoke test
+        working-directory: cpp/adrc
+        run: |
+          ./build/Release/demo_cpp 2>&1 | head -20
+        shell: bash

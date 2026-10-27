@@ -5,11 +5,21 @@ project(adrc VERSION 1.1.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# Enable testing
+enable_testing()
+
 # Create library
 add_library(adrc
     src/ADRC.cpp
     src/TD.cpp
 )
+
+# Warnings for the library (non-fatal by default)
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    target_compile_options(adrc PRIVATE -Wall -Wextra -Wpedantic)
+elseif(MSVC)
+    target_compile_options(adrc PRIVATE /W4)
+endif()
 
 # Include directories for the library itself
 target_include_directories(adrc
@@ -20,6 +30,17 @@ target_include_directories(adrc
 
 add_executable(demo_cpp demo.cpp)
 target_link_libraries(demo_cpp PRIVATE adrc)
+
+# Unit tests (registered with CTest)
+add_executable(adrc_tests tests/test_main.cpp)
+target_link_libraries(adrc_tests PRIVATE adrc)
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    target_compile_options(adrc_tests PRIVATE -Wall -Wextra -Wpedantic)
+elseif(MSVC)
+    target_compile_options(adrc_tests PRIVATE /W4)
+endif()
+
+add_test(NAME adrc_tests COMMAND adrc_tests)
 
 # Install rules
 install(TARGETS adrc
