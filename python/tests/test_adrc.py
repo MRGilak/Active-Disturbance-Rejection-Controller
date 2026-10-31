@@ -16,7 +16,7 @@ def test_constructor_valid_orders():
         assert controller.controller_order == order + 1
 
 
-@pytest.mark.parametrize('order', [0, -1, 5, 100])
+@pytest.mark.parametrize('order', [0, -1])
 def test_constructor_invalid_orders(order):
     with pytest.raises(ValueError):
         ADRC(order)
@@ -209,8 +209,26 @@ def test_cascaded_mode_runs_and_reporting():
         controller.step(1.0, 0.0)
     assert controller.use_cascaded
     assert len(controller.get_estimated_states()) == 3
-    assert controller.get_estimated_disturbance() == \
-        controller.get_m_states()[-1] + controller.get_z_states()[-1]
+    assert np.isclose(controller.get_estimated_disturbance(),
+                      controller.get_observer_states()[-1, :].sum())
+
+
+def test_generalized_configuration_supports_multiple_esos_and_arbitrary_order():
+    controller = ADRC(5)
+    controller.initialize(
+        omega_c=3.0,
+        omega_o=[20.0, 30.0],
+        b0=1.5,
+        dT=0.01,
+        numObservers=2,
+        estimateLayers=[1, 2, 1, 2, 1],
+        observerGains=np.full((6, 2), 0.1),
+        controllerGains=[1, 2, 3, 4, 5],
+    )
+    u = controller.step(1.0, 0.0)
+    assert np.isfinite(u)
+    assert controller.get_observer_states().shape == (6, 2)
+    assert controller.get_estimated_states().shape == (6,)
 
 
 def test_reset_restores_state():

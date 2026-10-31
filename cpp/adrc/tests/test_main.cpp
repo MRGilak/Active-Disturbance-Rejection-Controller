@@ -182,7 +182,12 @@ static void test_adrc_constructor_validation() {
     }
     CHECK(throws_invalid_argument([] { ADRC(0); }));
     CHECK(throws_invalid_argument([] { ADRC(-1); }));
-    CHECK(throws_invalid_argument([] { ADRC(5); }));
+    for (int order = 1; order <= 10; ++order) {
+        ADRC controller(order);
+        controller.initialize();
+        CHECK(controller.getEstimatedStates().size() == (size_t)(order + 1));
+    }
+    CHECK(throws_invalid_argument([] { ADRC(11); }));
 }
 
 static void test_adrc_step_before_initialize() {
@@ -283,9 +288,9 @@ static void test_adrc_cascaded_mode() {
         controller.step(1.0, 0.0);
     }
     CHECK(controller.getEstimatedStates().size() == 3);
-    CHECK(controller.getMStates().size() == 3);
-    CHECK_CLOSE(controller.getEstimatedDisturbance(),
-                controller.getMStates().back() + controller.getZStates().back(), 1e-12);
+    CHECK(controller.getObserverStates(1).size() == 3);
+    CHECK(controller.getEstimatedDisturbance() ==
+          controller.getObserverStates(1).back());
 }
 
 static void test_adrc_reset_and_setters() {
@@ -294,6 +299,7 @@ static void test_adrc_reset_and_setters() {
     for (int i = 0; i < 50; ++i) {
         controller.step(1.0, 0.0);
     }
+
     controller.reset();
     for (double x : controller.getEstimatedStates()) {
         CHECK_CLOSE(x, 0.0, 1e-12);

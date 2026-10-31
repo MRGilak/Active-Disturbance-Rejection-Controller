@@ -139,3 +139,4 @@ Thumbs.db
 slprj/
 *.slxc
 *.autosave
+matlab/codegen/generated/

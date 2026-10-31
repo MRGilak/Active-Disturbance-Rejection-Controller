@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-project(adrc VERSION 1.1.0 LANGUAGES CXX)
+project(adrc VERSION 2.0.0 LANGUAGES CXX)
 
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 17)
@@ -41,6 +41,9 @@ elseif(MSVC)
 endif()
 
 add_test(NAME adrc_tests COMMAND adrc_tests)
+
+add_executable(adrc_cross_language tests/cross_language_runner.cpp)
+target_link_libraries(adrc_cross_language PRIVATE adrc)
 
 # Install rules
 install(TARGETS adrc

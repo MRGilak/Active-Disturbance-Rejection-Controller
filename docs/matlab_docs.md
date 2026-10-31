@@ -209,6 +209,13 @@ Get estimated total disturbance (last element of Xhat).
 
 ---
 
+# Cascaded ESO
+
+The cascaded option uses several ESOs in series. The first ESO estimates the
+plant states and disturbance. Each following ESO estimates the remaining
+disturbance from the previous layer. The controller uses the sum of the
+disturbance estimates. The state estimates used for control can come from any of the ESOs.
+
 # Scripts
 
 ## ADRC_app.m

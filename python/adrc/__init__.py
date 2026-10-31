@@ -9,4 +9,4 @@ from .ADRC import ADRC
 from .TD import TD
 
 __all__ = ["ADRC", "TD"]
-__version__ = "1.0.1"
+__version__ = "2.0.0"

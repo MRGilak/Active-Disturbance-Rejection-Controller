@@ -24,7 +24,7 @@ Cd = C;
 
 % Create and initialize ADRC controller
 controller = adrc.ADRC(n);
-controller.initialize('Tsettle', 1.0, 'kob', 10, 'b0', 1.6, ...
+controller.initialize('omega_c', 4.0, 'omega_o', 40.0, 'b0', 1.6, ...
                      'dT', 0.01, 'uMin', -10, 'uMax', 10);
 
 % Generate step reference
@@ -79,7 +79,7 @@ fprintf('\nExample 2: ADRC with TD for sinusoidal reference\n');
 
 % Reset controller with TD
 controller2 = adrc.ADRC(n);
-controller2.initialize('Tsettle', 1.0, 'kob', 10, 'b0', 1.6, ...
+controller2.initialize('omega_c', 4.0, 'omega_o', 40.0, 'b0', 1.6, ...
                       'dT', 0.01, 'uMin', -30, 'uMax', 30, ...
                       'TD_method', 'euler', 'TD_params', {0.6});
 
@@ -136,7 +136,7 @@ fprintf('\nExample 3: ADRC with input delay compensation\n');
 % Reset controller with input delay
 inputDelay = 0.2; % 200ms delay
 controller3 = adrc.ADRC(n);
-controller3.initialize('Tsettle', 1.0, 'kob', 10, 'b0', 1.6, ...
+controller3.initialize('omega_c', 4.0, 'omega_o', 40.0, 'b0', 1.6, ...
                       'dT', 0.01, 'uMin', -10, 'uMax', 10, ...
                       'inputDelay', inputDelay);
 
@@ -199,4 +199,3 @@ ylabel('Control Input');
 legend('Controller $u(t)$', 'Applied $u(t-\tau)$', 'interpreter', 'latex', 'Location', 'best');
 title('Control Signal');
 ylim([-0.5, 10.5]);
-

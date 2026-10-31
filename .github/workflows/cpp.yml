@@ -38,5 +38,10 @@ jobs:
       - name: Run demo smoke test
         working-directory: cpp/adrc
         run: |
-          ./build/Release/demo_cpp 2>&1 | head -20
+          set -o pipefail
+          if [ "${{ runner.os }}" = "Windows" ]; then
+            ./build/Release/demo_cpp.exe 2>&1 | head -20
+          else
+            ./build/demo_cpp 2>&1 | head -20
+          fi
         shell: bash

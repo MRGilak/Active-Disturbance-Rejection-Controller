@@ -36,7 +36,8 @@ def example_standard_vs_cascaded():
     # Create Cascaded ADRC Controller
     ctrl_cascaded = ADRC(n)
     ctrl_cascaded.initialize(Tsettle=1.0, kob=10, b0=b0, dt=0.01,
-                             u_min=-30, u_max=30, Ke=1.0, use_cascaded=True)
+                             u_min=-30, u_max=30, Ke=1.0, use_cascaded=True,
+                             numObservers=2)
     
     # Generate Reference Signal
     w = 2 * np.pi * 0.2
@@ -78,8 +79,8 @@ def example_standard_vs_cascaded():
         
         # Store estimates
         xhat_std[k, :] = ctrl_standard.get_estimated_states()
-        zhat_cas[k, :] = ctrl_cascaded.get_z_states()
-        mhat_cas[k, :] = ctrl_cascaded.get_m_states()
+        zhat_cas[k, :] = ctrl_cascaded.get_observer_states(1)
+        mhat_cas[k, :] = ctrl_cascaded.get_observer_states(2)
         
         # Store disturbance estimates
         f_std[k] = ctrl_standard.get_estimated_disturbance()

@@ -21,8 +21,8 @@ jobs:
       - name: Run MATLAB unit tests
         uses: matlab-actions/run-tests@v2
         with:
-          source-folder: MATLAB
-          select-by-folder: MATLAB/tests
+          source-folder: matlab
+          select-by-folder: matlab/tests
           capture-pdf: true
           capture-figures: true
 

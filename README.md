@@ -2,13 +2,21 @@
 
 This repository contains Python, C++, MATLAB, and Simulink implementation of Active Disturbance Rejection Control with Extended State Observer (ESO), Tracking Differentiator (TD), input delay compensation, control saturation, and support for optional use of the cascaded structure.
 
-I've summarized a comprehensive note on the theoretical background of _actve disturbance rejection controller_ and _tracking differentiators_. You can find it in [here](/docs/theory.md) (I'll add the cascaded ADRC documentation as soon as possible).
+I've summarized a comprehensive note on the theoretical background of _actve disturbance rejection controller_ and _tracking differentiators_. You can find it in [here](/docs/theory.md). A brief explanation of the cascaded ESO is given below.
 
 __Note__: Important notes for the Python, C++, Matlab, and Simulink implementations are given after the introduction!
 
-__New__: _Cascaded ADRC_ is now supported for all the environments as well.
- 
+__New__: _Cascaded ESO ADRC_ is now supported for all the environments as well.
+
 ---
+# Cascaded ESO
+
+In the cascaded version, more than one ESO is used in series. The first ESO
+estimates the plant states and the total disturbance. The next ESO receives
+the previous ESO estimate and estimates the remaining disturbance. The
+disturbance used by the controller is the sum of the disturbance estimates
+from all ESO layers. The state estimates used for control can come from any of the ESOs.
+
 # Demo
 
 Here are some figures showing the controller in action, in presence of time-varying referece signal, input delay, input saturation, etc.
@@ -41,6 +49,17 @@ __Note__: To be able to use all the Python codes, especially the demo script, yo
 - matplotlib     (only needed for the demo)
 - python-control (only needed for the demo)
 
+# C++
+
+The C++ implementation uses CMake. From the project root, configure, build,
+and run the tests with:
+
+``` bash
+cmake -S cpp/adrc -B cpp/adrc/build
+cmake --build cpp/adrc/build --config Release
+ctest --test-dir cpp/adrc/build -C Release --output-on-failure
+```
+
 # Simulink
 Discrete controller implementations are available for first and second-order systems in simulink. There is also a continuous-time implementation for second-order systems. Continuous-time first-order systems will be added as well.
 Please pay attention to the following:
@@ -50,7 +69,7 @@ Please pay attention to the following:
 - The Simulink files are generated using MATLAB 2025b. If you have an older version and need the files, you can contact me to export them for you. I will add automatic support for older versions as well in the future. You can caontact me via email at _mrgilak02@gmail.com_, but I might not be able to respond quickly due to frequent internet shutdowns in Iran :)
 
 # MATLAB
-You can take a look at [this file](/docs/matlab_docs.md) to see how the code works. 
+You can take a look at [this file](/docs/matlab_docs.md) to see how the code works.
 
 **_Note_**: I have tried to use the same names in MATLAB, Python, and C++; however, I still feel it's necessary to add proper documentation for each. This is in the [TODOs](#todos).
 
@@ -63,13 +82,12 @@ You can take a look at [this file](/docs/matlab_docs.md) to see how the code wor
 ---
 # TODOs
 
- - [ ] add proper documentation for the Python and C++ versions as well
- - [ ] add theoretical background for cascaded ADRC
- - [ ] add a script to compare MATLAB and Simulink's output for any possible differences
+ - [x] add theoretical background for cascaded ADRC
+ - [x] add a script to compare MATLAB and Simulink's output for any possible differences
  - [ ] add support for multiple generations of older Simulink versions (distant future!)
 
 ---
-This repo is maintained by [me](https://github.com/MRGilak). Contributions are welcome as well. 
+This repo is maintained by [me](https://github.com/MRGilak). Contributions are welcome as well.
 ---
 
 ## References
